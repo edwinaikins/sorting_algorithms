@@ -1,84 +1,70 @@
 #include "sort.h"
-#include <stdio.h>
 /**
- * swap_nums - swaps numbers
+ * check_tree - swiftdown check
+ * @array: pointer to array
+ * @size: size of the pointer
+ * @size_init: original size of the array
+ * @i: index as a root of the tree
  *
- * @arr: input array
- * @a: first index
- * @b: second index
- * Return: no return
- */
-void swap_nums(int *arr, int a, int b)
+**/
+void check_tree(int *array, size_t size_init, size_t size, size_t i)
 {
-	arr[a] = arr[a] + arr[b];
-	arr[b] = arr[a] - arr[b];
-	arr[a] = arr[a] - arr[b];
-}
 
-/**
- * recursion_heap - recursion that builds the max heap tree
- *
- * @arr: input array
- * @i: index number
- * @size: size of the array
- * @limit: limit of the array
- * Return: no return
- */
-void recursion_heap(int *arr, int i, size_t size, int limit)
-{
-	int bigger;
-	int i2;
+	int n, branch1, branch2;
+	size_t br1, br2;
 
-	i2 = i * 2;
-
-	if (i2 + 2 < limit)
+	br1 = i * 2 + 1;
+	br2 = br1 + 1;
+	branch1 = array[br1];
+	branch2 = array[br2];
+	if (((br1 < size) && (br2 < size) &&
+		(branch1 >= branch2 && branch1 > array[i]))
+		|| ((br1 == size - 1) && branch1 > array[i]))
 	{
-		recursion_heap(arr, i2 + 1, size, limit);
-		recursion_heap(arr, i2 + 2, size, limit);
+		n = array[i];
+		array[i] = branch1;
+		array[br1] = n;
+		print_array(array, size_init);
 	}
-
-	if (i2 + 1 >= limit)
-		return;
-
-	if (i2 + 2 < limit)
-		bigger = (arr[i2 + 1] > arr[i2 + 2]) ? (i2 + 1) : (i2 + 2);
-	else
-		bigger = i2 + 1;
-
-	if (arr[i] < arr[bigger])
+	else if ((br1 < size) && (br2 < size) &&
+		(branch2 > branch1 && branch2 > array[i]))
 	{
-		swap_nums(arr, i, bigger);
-		print_array(arr, size);
-		recursion_heap(arr, bigger, size, limit);
+		n = array[i];
+		array[i] = branch2;
+		array[br2] = n;
+		print_array(array, size_init);
 	}
+	if (br1 < size - 1)
+		check_tree(array, size_init, size, br1);
+	if (br2 < size - 1)
+		check_tree(array, size_init, size, br2);
 }
-
 /**
- * heap_sort - sorts an array of integers in ascending
- * order using the Heap sort algorithm
+ * heap_sort - sorts an array of integers
+ * in ascending order using the Heap
+ * sort algorithm
+ * @array: pointer to array
+ * @size: size of the pointer
  *
- * @array: input array
- * @size: size of the array
- */
+**/
 void heap_sort(int *array, size_t size)
 {
-	int i;
-	size_t limit;
+	size_t i, size_init = size;
+	int n;
 
-	if (!array || size == 0)
+	if (!array)
 		return;
-
-	i = 0;
-	limit = size;
-
-	while (limit > 1)
+	for (i = 0; i < size / 2 ; i++)
 	{
-		recursion_heap(array, i, size, limit);
-		if (array[i] >= array[limit - 1])
-		{
-			swap_nums(array, i, limit - 1);
-			print_array(array, size);
-		}
-		limit--;
+		check_tree(array, size_init, size, size / 2 - 1 - i);
 	}
+	for (i = 0; i < size_init - 1; i++)
+	{
+		n = array[0];
+		array[0] = array[size - 1 - i];
+		array[size - 1 - i] = n;
+		print_array(array, size_init);
+		check_tree(array, size_init, size - i - 1, 0);
+	}
+
 }
